@@ -1,7 +1,7 @@
 import subprocess
 
 # Captura os valores dos comandos
-user = subprocess.getoutput("whoami")
+user = subprocess.getoutput("id -un")
 hostname = subprocess.getoutput("hostname")
 home = subprocess.getoutput('echo $XDG_CONFIG_HOME')
 active_folder = subprocess.getoutput('pwd')
