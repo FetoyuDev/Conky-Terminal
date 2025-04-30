@@ -6,4 +6,4 @@ home = os.system("$XDG_CONFIG_HOME")
 active_folder = os.system('echo "$(pwd)"')
 date = os.system("date")
 
-all
+all_data = ["", "", "", "", ""]
