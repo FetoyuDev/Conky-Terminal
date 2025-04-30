@@ -10,7 +10,8 @@ date = subprocess.getoutput("date")
 # Combina os valores em uma lista
 all_data = [user, hostname, home, active_folder, date]
 
-print(f"""Todos os dados: 
+# Imprime os dados com quebra de linha
+print(f"""Todos os dados:
 Usuário: {all_data[0]}
 Nome do computador: {all_data[1]}
 Pasta pessoal: {all_data[2]}
