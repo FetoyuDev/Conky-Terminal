@@ -11,9 +11,11 @@ date = subprocess.getoutput("date")
 all_data = [user, hostname, home, active_folder, date]
 
 # Imprime os dados com quebra de linha
-print(f"""Todos os dados:
+print(f"""
+Todos os dados:
 Usuário: {all_data[0]}
 Nome do computador: {all_data[1]}
 Pasta pessoal: {all_data[2]}
 Pasta Ativa: {all_data[3]}
-Data Atual: {all_data[4]}""")
+Data Atual: {all_data[4]}
+""")
