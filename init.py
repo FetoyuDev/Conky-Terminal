@@ -6,6 +6,21 @@ import psutil
 import platform
 import time
 
+
+
+# import psutil
+
+# Get network I/O counters for each network interface
+# net_io_counters = psutil.net_io_counters(pernic=True)
+
+# Iterate through each network interface
+# for interface, counters in net_io_counters.items():
+#    print(f"Interface: {interface}")
+#    print(f"  Bytes Sent: {counters.bytes_sent}")
+#    print(f"  Bytes Received: {counters.bytes_recv}")
+
+
+
 try:
     import curses
     use_curses = True
@@ -117,6 +132,23 @@ if use_curses:
                     ["Swap Total", f"{swap.total // (1024 ** 2)} MB", ""]
                 ])
 
+            # Obter informações de rede
+            net_io_counters = psutil.net_io_counters(pernic=True)
+            network_data = []
+            for interface, counters in net_io_counters.items():
+                network_data.append([
+                    f"Interface: {interface}",
+                    f"Bytes Enviados: {counters.bytes_sent}",
+                    f"Bytes Recebidos: {counters.bytes_recv}"
+                ])
+
+            # Adicionar informações de rede à tabela de recursos do sistema
+            for data in network_data:
+                table_data.append([data[0], data[1], ""])
+                table_data.append(["", data[2], ""])
+
+            # Atualizar a tabela para exibir informações de rede abaixo do IP
+
             table = tabulate(table_data, headers=["Recurso", "Valor", "Progresso"], tablefmt="fancy_grid")
             table_lines = table.splitlines()
 
@@ -196,6 +228,23 @@ else:
                         ["Swap Usado", f"{swap.used // (1024 ** 2)} MB", f"[{('=' * int(swap.percent // 10)).ljust(10)}]"],
                         ["Swap Total", f"{swap.total // (1024 ** 2)} MB", ""]
                     ])
+
+                # Obter informações de rede
+                net_io_counters = psutil.net_io_counters(pernic=True)
+                network_data = []
+                for interface, counters in net_io_counters.items():
+                    network_data.append([
+                        f"Interface: {interface}",
+                        f"Bytes Enviados: {counters.bytes_sent}",
+                        f"Bytes Recebidos: {counters.bytes_recv}"
+                    ])
+
+                # Adicionar informações de rede à tabela de recursos do sistema
+                for data in network_data:
+                    table_data.append([data[0], data[1], ""])
+                    table_data.append(["", data[2], ""])
+
+                # Atualizar a tabela para exibir informações de rede abaixo do IP
 
                 table = tabulate(table_data, headers=["Recurso", "Valor", "Progresso"], tablefmt="fancy_grid")
                 print(term.move(1, 0) + table)
