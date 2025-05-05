@@ -137,7 +137,8 @@ if use_curses:
                 offset = max(0, len(combined_lines) - max_y)
 
             # Exibir as linhas visíveis
-            for idx, line in enumerate(combined_lines[offset:offset + max_y]):
+            visible_lines = combined_lines[offset:offset + max_y]
+            for idx, line in enumerate(visible_lines):
                 if len(line) > max_x:
                     line = line[:max_x - 3] + "..."
                 stdscr.addstr(idx, 0, line)
@@ -147,9 +148,9 @@ if use_curses:
             # Capturar entrada do usuário
             key = stdscr.getch()
             if key == curses.KEY_UP:
-                offset = max(0, offset - 1)  # Garantir que não ultrapasse o limite superior
+                offset = max(0, offset - 1)  # Subir
             elif key == curses.KEY_DOWN:
-                offset = min(len(combined_lines) - max_y, offset + 1)  # Garantir que não ultrapasse o limite inferior
+                offset = min(len(combined_lines) - max_y, offset + 1)  # Descer
             elif key == curses.KEY_MOUSE:
                 try:
                     _, _, _, _, button = curses.getmouse()
