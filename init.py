@@ -211,8 +211,11 @@ def get_process_table():
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
-    # Ordenar os processos pelo uso de CPU
-    processes = sorted(processes, key=lambda x: x['cpu_percent'], reverse=True)
+    # Ordenar os processos pelo PID para manter a ordem fixa
+    processes = sorted(processes, key=lambda x: x['pid'])
+
+    # Limitar a tabela a 8 processos
+    processes = processes[:8]
 
     # Criar a tabela
     table_data = []
