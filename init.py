@@ -6,8 +6,6 @@ import psutil
 import platform
 import time
 
-os.system("pip3 install tabulate platform psutils")
-
 try:
     import curses
     use_curses = True
