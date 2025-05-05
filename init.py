@@ -203,23 +203,24 @@ else:
                 time.sleep(1)
 
 def get_process_table():
-    # Obter todos os processos
-    processes = []
-    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+    # Filtrar apenas processos abertos pelo usuário
+    user_processes = []
+    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent', 'username']):
         try:
-            processes.append(proc.info)
+            if proc.info['username'] == user:  # Verificar se o processo pertence ao usuário atual
+                user_processes.append(proc.info)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
     # Ordenar os processos pelo PID para manter a ordem fixa
-    processes = sorted(processes, key=lambda x: x['pid'])
+    user_processes = sorted(user_processes, key=lambda x: x['pid'])
 
     # Limitar a tabela a 8 processos
-    processes = processes[:8]
+    user_processes = user_processes[:8]
 
     # Criar a tabela
     table_data = []
-    for process in processes:
+    for process in user_processes:
         cpu_bar = f"[{('=' * int(process['cpu_percent'] // 10)).ljust(10)}]"
         mem_bar = f"[{('=' * int(process['memory_percent'] // 10)).ljust(10)}]"
         table_data.append([
