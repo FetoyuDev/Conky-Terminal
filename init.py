@@ -132,17 +132,24 @@ if use_curses:
                     ["Swap Total", f"{swap.total // (1024 ** 2)} MB", ""]
                 ])
 
+            def format_bytes(size):
+                # Função para formatar bytes em KB, MB, GB, etc.
+                for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+                    if size < 1024:
+                        return f"{size:.2f} {unit}"
+                    size /= 1024
+
             # Obter informações de rede
             net_io_counters = psutil.net_io_counters(pernic=True)
             network_data = []
             for interface, counters in net_io_counters.items():
                 network_data.append([
                     f"Interface: {interface}",
-                    f"Bytes Enviados: {counters.bytes_sent}",
-                    f"Bytes Recebidos: {counters.bytes_recv}"
+                    f"Bytes Enviados: {format_bytes(counters.bytes_sent)}",
+                    f"Bytes Recebidos: {format_bytes(counters.bytes_recv)}"
                 ])
 
-            # Adicionar informações de rede à tabela de recursos do sistema
+            # Adicionar informações de rede à tabela de recursos do sistema sem barras de progresso
             for data in network_data:
                 table_data.append([data[0], data[1], ""])
                 table_data.append(["", data[2], ""])
@@ -229,17 +236,24 @@ else:
                         ["Swap Total", f"{swap.total // (1024 ** 2)} MB", ""]
                     ])
 
+                def format_bytes(size):
+                    # Função para formatar bytes em KB, MB, GB, etc.
+                    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+                        if size < 1024:
+                            return f"{size:.2f} {unit}"
+                        size /= 1024
+
                 # Obter informações de rede
                 net_io_counters = psutil.net_io_counters(pernic=True)
                 network_data = []
                 for interface, counters in net_io_counters.items():
                     network_data.append([
                         f"Interface: {interface}",
-                        f"Bytes Enviados: {counters.bytes_sent}",
-                        f"Bytes Recebidos: {counters.bytes_recv}"
+                        f"Bytes Enviados: {format_bytes(counters.bytes_sent)}",
+                        f"Bytes Recebidos: {format_bytes(counters.bytes_recv)}"
                     ])
 
-                # Adicionar informações de rede à tabela de recursos do sistema
+                # Adicionar informações de rede à tabela de recursos do sistema sem barras de progresso
                 for data in network_data:
                     table_data.append([data[0], data[1], ""])
                     table_data.append(["", data[2], ""])
