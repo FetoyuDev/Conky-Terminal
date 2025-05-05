@@ -207,6 +207,7 @@ def get_process_table():
     user_processes = []
     for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent', 'username']):
         try:
+            proc.cpu_percent(interval=0.0)  # Forçar atualização do uso de CPU
             if proc.info['username'] == user:  # Verificar se o processo pertence ao usuário atual
                 user_processes.append(proc.info)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
