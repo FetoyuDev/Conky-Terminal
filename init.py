@@ -78,10 +78,13 @@ if use_curses:
     def draw_interface(stdscr):
         curses.curs_set(0)  # Ocultar o cursor
         stdscr.nodelay(1)  # Permitir atualizações sem bloquear
+        curses.mousemask(1)  # Habilitar eventos do mouse
 
         # Configurar cores no curses
         curses.start_color()
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
+
+        offset = 0  # Controle de scroll
 
         while True:
             stdscr.clear()
@@ -93,8 +96,7 @@ if use_curses:
             if system != "Windows":
                 swap = psutil.swap_memory()
 
-            # Remover as barras de progresso da exibição principal
-            # Adicionar as barras de progresso dentro da tabela
+            # Criar a tabela de informações do sistema
             table_data = [
                 ["CPU (%)", f"{cpu_percent}%", f"[{('=' * int(cpu_percent // 10)).ljust(10)}]"],
                 ["Memória Usada", f"{memory.used // (1024 ** 2)} MB", f"[{('=' * int(memory.percent // 10)).ljust(10)}]"],
@@ -109,31 +111,58 @@ if use_curses:
                 ["IP", IP, ""]
             ]
 
-            # Atualizar a tabela para não exibir Swap no Windows
             if system != "Windows":
                 table_data.extend([
                     ["Swap Usado", f"{swap.used // (1024 ** 2)} MB", f"[{('=' * int(swap.percent // 10)).ljust(10)}]"],
                     ["Swap Total", f"{swap.total // (1024 ** 2)} MB", ""]
                 ])
 
-            # Ajustar a tabela para remover espaços desnecessários
             table = tabulate(table_data, headers=["Recurso", "Valor", "Progresso"], tablefmt="fancy_grid")
             table_lines = table.splitlines()
 
-            # Ajustar a posição inicial da tabela para evitar espaços no topo
-            start_y = 1  # Começar logo abaixo do título
+            # Criar a tabela de processos ativos
+            process_table = get_process_table()
+            process_lines = process_table.splitlines()
 
-            # Verificar se a tabela cabe na janela do terminal
+            # Combinar as tabelas
+            combined_lines = table_lines + ["", "Tabela de Processos:"] + process_lines
+
+            # Verificar dimensões da janela
             max_y, max_x = stdscr.getmaxyx()
-            if len(table_lines) + start_y > max_y or any(len(line) > max_x for line in table_lines):
-                stdscr.addstr(0, 0, "A janela do terminal é muito pequena para exibir o conteúdo.")
-            else:
-                # Exibir a tabela sem linhas em branco adicionais
-                for idx, line in enumerate(table_lines):
-                    stdscr.addstr(start_y + idx, 0, line)
+
+            # Ajustar o offset para scroll
+            if offset < 0:
+                offset = 0
+            elif offset > max(0, len(combined_lines) - max_y):
+                offset = max(0, len(combined_lines) - max_y)
+
+            # Exibir as linhas visíveis
+            for idx, line in enumerate(combined_lines[offset:offset + max_y]):
+                if len(line) > max_x:
+                    line = line[:max_x - 3] + "..."
+                stdscr.addstr(idx, 0, line)
 
             stdscr.refresh()
-            time.sleep(1)
+
+            # Capturar entrada do usuário
+            key = stdscr.getch()
+            if key == curses.KEY_UP:
+                offset = max(0, offset - 1)  # Garantir que não ultrapasse o limite superior
+            elif key == curses.KEY_DOWN:
+                offset = min(len(combined_lines) - max_y, offset + 1)  # Garantir que não ultrapasse o limite inferior
+            elif key == curses.KEY_MOUSE:
+                try:
+                    _, _, _, _, button = curses.getmouse()
+                    if button == curses.BUTTON4_PRESSED:  # Scroll up
+                        offset = max(0, offset - 1)
+                    elif button == curses.BUTTON5_PRESSED:  # Scroll down
+                        offset = min(len(combined_lines) - max_y, offset + 1)
+                except curses.error:
+                    pass  # Ignorar erros relacionados ao mouse
+            elif key == ord('q'):
+                break
+
+            time.sleep(0.1)
 else:
     def draw_interface():
         with term.fullscreen(), term.cbreak():
@@ -172,6 +201,32 @@ else:
 
                 time.sleep(1)
 
+def get_process_table():
+    # Obter todos os processos
+    processes = []
+    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+        try:
+            processes.append(proc.info)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+    # Ordenar os processos pelo uso de CPU
+    processes = sorted(processes, key=lambda x: x['cpu_percent'], reverse=True)
+
+    # Criar a tabela
+    table_data = []
+    for process in processes:
+        cpu_bar = f"[{('=' * int(process['cpu_percent'] // 10)).ljust(10)}]"
+        mem_bar = f"[{('=' * int(process['memory_percent'] // 10)).ljust(10)}]"
+        table_data.append([
+            process['name'] or 'N/A',
+            f"{process['cpu_percent']}%", cpu_bar,
+            f"{process['memory_percent']:.2f}%", mem_bar
+        ])
+
+    # Retornar a tabela formatada
+    return tabulate(table_data, headers=["Processo", "CPU (%)", "Barra CPU", "RAM (%)", "Barra RAM"], tablefmt="fancy_grid")
+
 # Inicializar a interface curses
 if __name__ == "__main__":
     try:
@@ -180,4 +235,4 @@ if __name__ == "__main__":
         else:
             draw_interface()
     except KeyboardInterrupt:
-        os.system(clear_command)
+        os.system(clear_command)  # Limpar o terminal ao sair com Ctrl+C
