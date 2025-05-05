@@ -89,8 +89,8 @@ if use_curses:
         while True:
             stdscr.clear()
 
-            # Obter informações do sistema
-            cpu_percent = psutil.cpu_percent(interval=0.1)
+            # Atualizar informações do sistema em cada iteração
+            cpu_percent = psutil.cpu_percent(interval=0.02)  # Reduzido o intervalo para 0.02 segundos
             memory = psutil.virtual_memory()
             disk = psutil.disk_usage('/')
             if system != "Windows":
@@ -120,7 +120,7 @@ if use_curses:
             table = tabulate(table_data, headers=["Recurso", "Valor", "Progresso"], tablefmt="fancy_grid")
             table_lines = table.splitlines()
 
-            # Criar a tabela de processos ativos
+            # Atualizar a tabela de processos em cada iteração
             process_table = get_process_table()
             process_lines = process_table.splitlines()
 
@@ -171,7 +171,7 @@ else:
             while True:
                 print(term.move(0, 0) + "Informações do Sistema")
                 # Adapte o restante do código para exibir informações com `blessed`
-                cpu_percent = psutil.cpu_percent(interval=0.1)
+                cpu_percent = psutil.cpu_percent(interval=0.02)  # Reduzido o intervalo para 0.02 segundos
                 memory = psutil.virtual_memory()
                 disk = psutil.disk_usage('/')
                 if system != "Windows":
