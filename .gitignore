@@ -29,3 +29,5 @@ replay_pid*
 # Terminal history
 .histfile
 
+# Assets Files
+assets/
