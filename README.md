@@ -18,7 +18,7 @@ and more
 # Installation steps
 - Run the following command to install and start the application:
 ```bash
-git clone https://github.com/FetoyuDev/tests.git && cd tests && pip3 install tabulate psutil time platform && python3 init.py
+git clone https://github.com/FetoyuDev/conky-terminal.git && cd conky-terminal && pip3 install tabulate psutil time platform && python3 init.py
 ```
 
 - Run this command to start the application normally: 
@@ -28,7 +28,7 @@ python3 init.py
 
 - Run this command to update the application:
 ```bash
-cd .. && rm -rfv tests && git clone https://github.com/FetoyuDev/tests.git && cd tests && pip3 install tabulate psutil time platform && python3 init.py
+cd .. && rm -rfv conky-terminal && git clone https://github.com/FetoyuDev/conky-terminal.git && cd tests && pip3 install tabulate psutil time platform && python3 init.py
 ```
 
 # Supported OS:
