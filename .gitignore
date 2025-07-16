@@ -31,3 +31,12 @@ replay_pid*
 
 # Assets Files
 assets/
+
+# Tests Folder
+tests/
+
+# Not Finished Projects
+spotinfo.py
+
+# Cache Files
+.cache
